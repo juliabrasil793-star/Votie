@@ -1,20 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { View } from 'react-native';
+import Apresentacao from './components/Apresentacao';
+import CriarVotacao from './components/CriarVotacao';
 
 export default function App() {
+  const [tela, setTela] = useState('apresentacao');
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={{ flex: 1 }}>
+      {tela === 'apresentacao' && (
+        <Apresentacao irParaCriarVotacao={() => setTela('criarVotacao')} />
+      )}
+      {tela === 'criarVotacao' && (
+        <CriarVotacao voltar={() => setTela('apresentacao')} />
+      )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
