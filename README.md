@@ -1,50 +1,44 @@
 # Votie
-
-Aplicativo mobile para ajudar pessoas a tomarem decisões entre duas opções de forma simples, visual e divertida.
+Aplicativo mobile que funciona como um sorteador para ajudar pessoas a escolherem entre duas opções de forma simples, visual e divertida.
 
 ## Sobre o projeto
+O Votie é um aplicativo mobile desenvolvido para a disciplina de Desenvolvimento Mobile.
 
-O Votie é um aplicativo mobile desenvolvido para a disciplina de Desenvolvimento de Aplicativos Móveis.
+A proposta do aplicativo é ajudar o usuário quando estiver indeciso entre duas opções. O usuário cria uma pergunta e adiciona duas alternativas, podendo utilizar textos, imagens ou os dois.
 
-A proposta do aplicativo é ajudar o usuário em situações em que ele está indeciso entre duas opções. Para isso, o usuário pode criar uma votação com uma pergunta e duas alternativas, podendo utilizar textos, imagens ou os dois.
+Após realizar a votação, o Votie gera um resultado entre as duas opções, acompanhado de porcentagens que representam a escolha realizada pelo aplicativo.
 
-Após criar a votação, o Votie apresenta um resultado entre as duas opções, acompanhado de porcentagens que representam a votação.
+Dessa forma, o Votie funciona como uma espécie de sorteador visual para situações do dia a dia em que o usuário não consegue decidir entre duas alternativas.
 
 ## Problema
-
 No dia a dia, muitas pessoas têm dificuldade para escolher entre duas opções, como:
-
 - Qual roupa usar;
 - Qual foto postar;
 - Qual nome escolher;
 - Qual opção comprar;
 - Qual alternativa combina mais com determinada situação.
-
-Normalmente, essas decisões são feitas de maneira informal ou simplesmente por tentativa e erro.
-
-O Votie busca oferecer uma forma simples e visual de transformar essas dúvidas em uma votação entre duas alternativas.
+  
+Muitas vezes, essas decisões são feitas informalmente ou simplesmente por tentativa e erro.
+O Votie busca oferecer uma forma simples e visual de transformar essas dúvidas em uma escolha entre duas alternativas.
 
 ## Objetivo
-
-Desenvolver um aplicativo mobile simples e intuitivo que permita ao usuário criar votações entre duas opções e visualizar um resultado.
+Desenvolver um aplicativo mobile simples e intuitivo que funcione como um sorteador entre duas opções, permitindo que o usuário crie uma pergunta, adicione alternativas e receba um resultado.
 
 O aplicativo também busca proporcionar uma experiência visual agradável e fácil de utilizar, utilizando imagens e elementos gráficos próprios para a identidade do Votie.
 
 ## Como funciona
-
 O funcionamento principal do Votie é baseado em seis etapas:
 
 1. O usuário acessa o aplicativo;
-2. Cria uma pergunta;
+2. Digita uma pergunta;
 3. Adiciona duas opções;
 4. Cada opção pode conter texto, imagem ou os dois;
 5. O usuário realiza a votação;
-6. O Votie apresenta uma das opções como resultado.
+6. O Votie gera e apresenta uma das opções como resultado.
 
 ## Funcionalidades
 
 ### Funcionalidades já desenvolvidas
-
 - Tela inicial de apresentação;
 - Identidade visual própria;
 - Navegação entre a tela inicial e a tela de criação;
@@ -57,33 +51,32 @@ O funcionamento principal do Votie é baseado em seis etapas:
 - Permissão para utilizar imagem e texto juntos;
 - Validação para impedir uma votação quando alguma das opções estiver completamente vazia;
 - Realização da votação;
+- Geração de um resultado entre as duas opções;
 - Exibição da opção vencedora;
+- Exibição de porcentagens para o resultado;
 - Animação na apresentação do resultado;
 - Botão para voltar à tela inicial;
-- Botão para iniciar uma nova votação.
+- Botão para iniciar uma nova votação;
+- Opção para refazer a votação mantendo a mesma pergunta e as mesmas opções;
+- Opção para fazer uma nova votação.
 
 ### Funcionalidades planejadas
-
-- Refazer uma votação mantendo a mesma pergunta e as mesmas opções;
-- Gerar novos resultados ao refazer uma votação;
-- Exibir porcentagens diferentes para cada resultado, como 15% e 85%;
-- Garantir que as porcentagens das duas opções sempre totalizem 100%;
-- Separar as ações de "Refazer votação" e "Fazer outra votação";
 - Criar um histórico das votações realizadas;
 - Permitir visualizar votações anteriores no histórico.
 
 ## Tecnologias
-
 - JavaScript
 - React Native
 - Expo
 
 ## Ferramentas
-
 - Visual Studio Code
 - Git
 - GitHub
 - Expo Go
+
+## Disciplina
+Projeto desenvolvido para a disciplina de Desenvolvimento Mobile.
 
 ## Cronogrâma
 
