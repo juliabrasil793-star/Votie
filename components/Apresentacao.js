@@ -100,13 +100,13 @@ const styles = StyleSheet.create({
     height: 240,
   },
 
-  meio: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: espacamento.grande,
-  },
-
+meio: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: espacamento.grande,
+  transform: [{ translateY: -100 }],
+},
   slogan: {
     color: '#8c8c8c',
     fontSize: 16,

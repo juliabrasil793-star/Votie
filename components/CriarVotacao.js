@@ -3,9 +3,10 @@ import { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
-  Image,
   TextInput,
+  Image,
   TouchableOpacity,
+  ScrollView,
   StyleSheet,
   Animated,
   Alert,
@@ -15,13 +16,24 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { cores, espacamento, bordas } from '../design-system';
 
+function gerarPorcentagem() {
+  let p = 10 + Math.floor(Math.random() * 81);
+
+  if (p === 50) {
+    p = 51;
+  }
+
+  return p;
+}
+
 export default function CriarVotacao(props) {
   const [pergunta, setPergunta] = useState('');
   const [foto1, setFoto1] = useState(null);
   const [texto1, setTexto1] = useState('');
   const [foto2, setFoto2] = useState(null);
   const [texto2, setTexto2] = useState('');
-  const [resultado, setResultado] = useState(null);
+  const [votacao, setVotacao] = useState(null);
+  const [rodada, setRodada] = useState(0);
 
   const movimento = useRef(new Animated.Value(0)).current;
   const escala = useRef(new Animated.Value(0)).current;
@@ -44,13 +56,13 @@ export default function CriarVotacao(props) {
   }, []);
 
   async function escolherFoto(lado) {
-    const resultado = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    const escolha = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
       quality: 0.7,
     });
 
-    if (!resultado.canceled) {
-      const uri = resultado.assets[0].uri;
+    if (!escolha.canceled) {
+      const uri = escolha.assets[0].uri;
 
       if (lado === 1) {
         setFoto1(uri);
@@ -60,34 +72,51 @@ export default function CriarVotacao(props) {
     }
   }
 
-  function fazerVotacao() {
-  const opcao1Vazia = !foto1 && !texto1.trim();
-  const opcao2Vazia = !foto2 && !texto2.trim();
+  function animarResultado() {
+    escala.setValue(0);
 
-  if (opcao1Vazia || opcao2Vazia) {
-    Alert.alert(
-      'Calma!',
-      'Cada opção precisa ter uma foto ou um texto.'
-    );
-    return;
+    Animated.spring(escala, {
+      toValue: 1,
+      friction: 4,
+      tension: 60,
+      useNativeDriver: true,
+    }).start();
   }
 
-  const vencedor = Math.random() < 0.5 ? 1 : 2;
+  function fazerVotacao() {
+    const opcao1Vazia = !foto1 && !texto1.trim();
+    const opcao2Vazia = !foto2 && !texto2.trim();
 
-  setResultado(vencedor);
+    if (opcao1Vazia || opcao2Vazia) {
+      Alert.alert(
+        'Calma!',
+        'Cada opção precisa ter uma foto ou um texto.'
+      );
+      return;
+    }
 
-  escala.setValue(0);
+    setVotacao({
+      pergunta: pergunta.trim(),
+      foto1: foto1,
+      texto1: texto1.trim() || 'Opção 1',
+      foto2: foto2,
+      texto2: texto2.trim() || 'Opção 2',
+      p1: gerarPorcentagem(),
+    });
 
-  Animated.spring(escala, {
-    toValue: 1,
-    friction: 4,
-    tension: 60,
-    useNativeDriver: true,
-  }).start();
-}
+    setRodada(1);
+    animarResultado();
+  }
 
-  function votarDeNovo() {
-    setResultado(null);
+  function refazerVotacao() {
+    setVotacao({ ...votacao, p1: gerarPorcentagem() });
+    setRodada(rodada + 1);
+    animarResultado();
+  }
+
+  function fazerOutraVotacao() {
+    setVotacao(null);
+    setRodada(0);
     setPergunta('');
     setFoto1(null);
     setTexto1('');
@@ -95,9 +124,45 @@ export default function CriarVotacao(props) {
     setTexto2('');
   }
 
-  if (resultado) {
-    const fotoVencedora = resultado === 1 ? foto1 : foto2;
-    const textoVencedor = resultado === 1 ? texto1 : texto2;
+  function renderBarra(texto, porcentagem, vencedor) {
+    return (
+      <View style={styles.barraContainer}>
+
+        <View style={styles.barraTopo}>
+          <Text
+            style={[
+              styles.barraNome,
+              vencedor ? styles.barraNomeVencedor : null,
+            ]}
+            numberOfLines={1}
+          >
+            {texto}
+          </Text>
+
+          <Text style={styles.barraPorcentagem}>
+            {porcentagem}%
+          </Text>
+        </View>
+
+        <View style={styles.barraTrilho}>
+          <View
+            style={[
+              styles.barraPreenchimento,
+              vencedor ? styles.barraPreenchimentoVencedor : null,
+              { width: porcentagem + '%' },
+            ]}
+          />
+        </View>
+
+      </View>
+    );
+  }
+
+  if (votacao) {
+    const p2 = 100 - votacao.p1;
+    const venceu1 = votacao.p1 > 50;
+    const fotoVencedora = venceu1 ? votacao.foto1 : votacao.foto2;
+    const nomeVencedor = venceu1 ? votacao.texto1 : votacao.texto2;
 
     return (
       <View style={styles.containerResultado}>
@@ -135,13 +200,21 @@ export default function CriarVotacao(props) {
           />
         </TouchableOpacity>
 
-        <View style={styles.resultadoConteudo}>
+        <ScrollView
+          style={styles.scrollResultado}
+          contentContainerStyle={styles.resultadoConteudo}
+          showsVerticalScrollIndicator={false}
+        >
 
-          {pergunta ? (
+          {votacao.pergunta ? (
             <Text style={styles.perguntaResultado}>
-              {pergunta}
+              {votacao.pergunta}
             </Text>
           ) : null}
+
+          <Text style={styles.rodada}>
+            Votação {rodada}
+          </Text>
 
           <Text style={styles.tituloVencedor}>
             Vencedor
@@ -163,20 +236,35 @@ export default function CriarVotacao(props) {
           </Animated.View>
 
           <Text style={styles.nomeVencedor}>
-            {textoVencedor}
+            {nomeVencedor}
           </Text>
+
+          <View style={styles.barras}>
+            {renderBarra(votacao.texto1, votacao.p1, venceu1)}
+            {renderBarra(votacao.texto2, p2, !venceu1)}
+          </View>
 
           <TouchableOpacity
             style={styles.botao}
-            onPress={votarDeNovo}
+            onPress={refazerVotacao}
             activeOpacity={0.8}
           >
             <Text style={styles.botaoTexto}>
-              Votar de Novo
+              Refazer votação
             </Text>
           </TouchableOpacity>
 
-        </View>
+          <TouchableOpacity
+            style={styles.botaoSecundario}
+            onPress={fazerOutraVotacao}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.botaoTexto}>
+              Fazer outra votação
+            </Text>
+          </TouchableOpacity>
+
+        </ScrollView>
 
       </View>
     );
@@ -220,7 +308,7 @@ export default function CriarVotacao(props) {
 
       <TextInput
         style={styles.perguntaInput}
-        placeholder="Sua pergunta!"
+        placeholder="Digite sua pergunta"
         placeholderTextColor="#a2a2a2"
         value={pergunta}
         onChangeText={setPergunta}
@@ -244,7 +332,7 @@ export default function CriarVotacao(props) {
               />
             ) : (
               <Text style={styles.textoFoto}>
-              ✭
+                Coloque uma foto
               </Text>
             )}
 
@@ -258,7 +346,7 @@ export default function CriarVotacao(props) {
 
           <TextInput
             style={styles.input}
-            placeholder="Opção 1"
+            placeholder="Digite sua opção"
             placeholderTextColor="#a2a2a2"
             value={texto1}
             onChangeText={setTexto1}
@@ -282,7 +370,7 @@ export default function CriarVotacao(props) {
               />
             ) : (
               <Text style={styles.textoFoto}>
-                ✭
+                Coloque uma foto
               </Text>
             )}
 
@@ -296,7 +384,7 @@ export default function CriarVotacao(props) {
 
           <TextInput
             style={styles.input}
-            placeholder="Opção 2"
+            placeholder="Digite sua opção"
             placeholderTextColor="#a2a2a2"
             value={texto2}
             onChangeText={setTexto2}
@@ -367,7 +455,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     textAlign: 'center',
-
   },
 
   linha: {
@@ -411,8 +498,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 70,
     color: cores.textoSecundario,
-    fontSize: 14,
+    fontSize: 10,
     zIndex: 1,
+    textAlign: 'center',
   },
 
   input: {
@@ -433,7 +521,6 @@ const styles = StyleSheet.create({
   containerResultado: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: cores.fundo,
   },
 
@@ -448,10 +535,15 @@ const styles = StyleSheet.create({
     height: 150,
   },
 
+  scrollResultado: {
+    width: '100%',
+    marginTop: 150,
+  },
+
   resultadoConteudo: {
     alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    paddingHorizontal: espacamento.grande,
+    paddingBottom: 40,
   },
 
   perguntaResultado: {
@@ -459,7 +551,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 6,
+  },
+
+  rodada: {
+    color: '#777777',
+    fontSize: 13,
+    marginBottom: 12,
   },
 
   tituloVencedor: {
@@ -470,8 +568,8 @@ const styles = StyleSheet.create({
   },
 
   fotoGrande: {
-    width: 220,
-    height: 220,
+    width: 180,
+    height: 180,
     borderRadius: bordas.card,
     backgroundColor: cores.cardBorda,
   },
@@ -480,8 +578,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
     marginTop: 16,
-    marginBottom: espacamento.grande,
+    marginBottom: espacamento.medio,
     fontWeight: 'bold',
+  },
+
+  barras: {
+    width: '100%',
+    marginBottom: espacamento.medio,
   },
 
   botao: {
@@ -491,9 +594,66 @@ const styles = StyleSheet.create({
     borderRadius: bordas.pilula,
   },
 
+  botaoSecundario: {
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+    paddingVertical: 13,
+    paddingHorizontal: espacamento.grande,
+    borderRadius: bordas.pilula,
+    marginTop: 12,
+  },
+
   botaoTexto: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+
+  barraContainer: {
+    width: '100%',
+    marginBottom: 14,
+  },
+
+  barraTopo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: 6,
+  },
+
+  barraNome: {
+    flex: 1,
+    color: '#8c8c8c',
+    fontSize: 15,
+    marginRight: 10,
+  },
+
+  barraNomeVencedor: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+
+  barraPorcentagem: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
+  barraTrilho: {
+    width: '100%',
+    height: 14,
+    backgroundColor: '#222222',
+    borderRadius: bordas.pilula,
+    overflow: 'hidden',
+  },
+
+  barraPreenchimento: {
+    height: '100%',
+    backgroundColor: '#555555',
+    borderRadius: bordas.pilula,
+  },
+
+  barraPreenchimentoVencedor: {
+    backgroundColor: '#FFFFFF',
   },
 });
